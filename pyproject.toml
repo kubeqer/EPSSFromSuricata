@@ -6,4 +6,11 @@ requires-python = ">=3.12"
 dependencies = [
     "epss-api>=1.3.4",
     "fastapi>=0.115.12",
+    "httpx>=0.28.1",
+    "psycopg2>=2.9.10",
+    "pydantic-settings>=2.9.1",
+    "pydantic[email]>=2.11.4",
+    "ruff>=0.11.9",
+    "sqlalchemy>=2.0.40",
+    "uvicorn>=0.34.2",
 ]
