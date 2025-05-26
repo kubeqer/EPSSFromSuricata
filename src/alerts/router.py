@@ -10,6 +10,8 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import text
+from sqlalchemy import func
+from fastapi.responses import JSONResponse
 from typing import Dict, List, Optional, Set, Any
 from datetime import datetime, timedelta
 
@@ -145,3 +147,39 @@ async def broadcast_update(topic: str, data: Dict[str, Any]):
 
     for connection in active_connections:
         await connection.send_json(message)
+
+@router.get("/stats/pie")
+async def get_pie_chart_stats(db: Session = Depends(get_db)):
+    """Get alert count grouped by priority for pie chart"""
+    results = (
+        db.query(Alert.priority, func.count(Alert.id))
+        .group_by(Alert.priority)
+        .all()
+    )
+    return [
+        {"name": f"Priority {priority.name}", "value": count}
+        for priority, count in results
+    ]
+
+
+@router.get("/stats/timeline")
+async def get_alerts_timeline(db: Session = Depends(get_db)):
+    """Get alert count per day for timeline chart"""
+    results = (
+        db.query(func.date(Alert.created_at), func.count(Alert.id))
+        .group_by(func.date(Alert.created_at))
+        .order_by(func.date(Alert.created_at))
+        .all()
+    )
+    return [{"date": str(date), "count": count} for date, count in results]
+
+
+@router.get("/stats/system")
+async def get_system_stats():
+    """Mock system statistics for dashboard overview"""
+    return {
+        "uptime": 4321,
+        "capture": {"kernel_packets": 2048},
+        "flow": {"tcp": 96},
+        "detect": {"alert": 30, "alert_queue_overflow": 2}
+    }
