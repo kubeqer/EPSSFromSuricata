@@ -1,0 +1,21 @@
+EVENT_TYPE_ALERT = "alert"
+EVENT_TYPE_HTTP = "http"
+EVENT_TYPE_DNS = "dns"
+EVENT_TYPE_TLS = "tls"
+EVENT_TYPE_SSH = "ssh"
+EVENT_TYPE_FLOW = "flow"
+
+SEVERITY_HIGH = 1
+SEVERITY_MEDIUM = 2
+SEVERITY_LOW = 3
+SEVERITY_INFO = 4
+
+SEVERITY_NAMES = {
+    SEVERITY_HIGH: "High",
+    SEVERITY_MEDIUM: "Medium",
+    SEVERITY_LOW: "Low",
+    SEVERITY_INFO: "Informational",
+}
+
+CVE_PATTERN = r"CVE-\d{4}-\d{4,}"
+EVE_JSON_DEFAULT_PATH = "/var/log/suricata/eve.json"
