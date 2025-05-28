@@ -18,8 +18,8 @@ import {
   MenuItem,
   Button,
   SelectChangeEvent,
+  Grid,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import {
   Visibility as ViewIcon,
   Edit as EditIcon,
@@ -161,7 +161,7 @@ const AlertsTable: React.FC = () => {
       {/* Filters */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2}}>
             <TextField
               select
               fullWidth
@@ -178,7 +178,7 @@ const AlertsTable: React.FC = () => {
               <MenuItem value={AlertStatus.FALSE_POSITIVE}>False Positive</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2}}>
             <TextField
               select
               fullWidth
@@ -194,7 +194,7 @@ const AlertsTable: React.FC = () => {
               <MenuItem value={AlertPriority.LOW}>Low</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2}}>
             <TextField
               fullWidth
               label="CVE ID"
@@ -204,7 +204,7 @@ const AlertsTable: React.FC = () => {
               placeholder="CVE-YYYY-NNNN"
             />
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2}}>
             <TextField
               select
               fullWidth
@@ -218,7 +218,7 @@ const AlertsTable: React.FC = () => {
               <MenuItem value="false">Suricata</MenuItem>
             </TextField>
           </Grid>
-          <Grid item xs={12} sm={12} md={4} sx={{ textAlign: 'right' }}>
+          <Grid size={{ xs: 12, sm: 6, md: 2}} sx={{ textAlign: 'right' }}>
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}

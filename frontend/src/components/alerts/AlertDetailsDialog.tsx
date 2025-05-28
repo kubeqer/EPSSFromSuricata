@@ -9,8 +9,8 @@ import {
   Box,
   Chip,
   Divider,
+  Grid,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import { Alert, AlertPriority, AlertStatus } from '../../types/alerts';
 
 interface AlertDetailsDialogProps {
@@ -49,7 +49,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Priority
               </Typography>
@@ -59,7 +59,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 size="small"
               />
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs:6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Status
               </Typography>
@@ -77,7 +77,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
             Alert Information
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid size={{ xs:12 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Signature
               </Typography>
@@ -85,7 +85,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.alert_signature || 'N/A'}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{xs:6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 CVE ID
               </Typography>
@@ -103,7 +103,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 )}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 EPSS Score
               </Typography>
@@ -121,7 +121,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
             Network Information
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Source
               </Typography>
@@ -129,7 +129,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.src_ip || 'N/A'}:{alert.event?.src_port || 'N/A'}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Destination
               </Typography>
@@ -137,7 +137,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.dest_ip || 'N/A'}:{alert.event?.dest_port || 'N/A'}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Protocol
               </Typography>
@@ -145,7 +145,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.proto || 'N/A'}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Detection Type
               </Typography>
@@ -159,7 +159,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
             Timestamps
           </Typography>
           <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Event Time
               </Typography>
@@ -169,7 +169,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                   : 'N/A'}
               </Typography>
             </Grid>
-            <Grid item xs={6}>
+            <Grid size={{ xs: 6 }}>
               <Typography variant="subtitle2" color="text.secondary">
                 Alert Created
               </Typography>

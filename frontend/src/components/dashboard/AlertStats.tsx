@@ -6,8 +6,8 @@ import {
   Box,
   CircularProgress,
   Chip,
+  Grid,
 } from '@mui/material';
-import Grid from '@mui/material/Unstable_Grid2';
 import {
   Warning as WarningIcon,
   CheckCircle as CheckCircleIcon,
@@ -72,7 +72,7 @@ const AlertStats: React.FC = () => {
 
   return (
     <Grid container spacing={3}>
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3}}>
         <Card>
           <CardContent>
             <Typography color="textSecondary" gutterBottom>
@@ -86,7 +86,7 @@ const AlertStats: React.FC = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3}}>
         <Card>
           <CardContent>
             <Typography color="textSecondary" gutterBottom>
@@ -100,7 +100,7 @@ const AlertStats: React.FC = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3}}>
         <Card>
           <CardContent>
             <Typography color="textSecondary" gutterBottom>
@@ -114,7 +114,7 @@ const AlertStats: React.FC = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} sm={6} md={3}>
+      <Grid size={{ xs: 12, sm: 6, md: 3}}>
         <Card>
           <CardContent>
             <Typography color="textSecondary" gutterBottom>
@@ -128,7 +128,7 @@ const AlertStats: React.FC = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, sm: 6, md: 3}}>
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
@@ -148,7 +148,7 @@ const AlertStats: React.FC = () => {
         </Card>
       </Grid>
 
-      <Grid item xs={12} md={6}>
+      <Grid size={{ xs: 12, md: 6 }}>
         <Card>
           <CardContent>
             <Typography variant="h6" gutterBottom>
@@ -158,7 +158,7 @@ const AlertStats: React.FC = () => {
               {Object.entries(stats.by_priority).map(([priority, count]) => {
                 const config = priorityColors[priority as AlertPriority];
                 return (
-                  <Grid item xs={6} key={priority}>
+                  <Grid size={{ xs: 6 }} key={priority}>
                     <Box display="flex" alignItems="center" gap={1}>
                       <Box color={`${config.color}.main`}>
                         {config.icon}
