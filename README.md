@@ -1,40 +1,7 @@
-https://github.com/zhanymkanov/fastapi-best-practices
-
+to run project use :
+- `npm i` and `npm start` in frontend directory.
+- `uv pip install -r pyproject.toml`, `uv run python src.main`
+- run postgresql docker container 
 ```bash
-backend
-├── src
-│   ├── suricata
-│   │   ├── parser.py           # czytanie eve.json
-│   │   ├── service.py          # ekstrakcja CVE, zapis Eventów do DB
-│   │   ├── models.py           # SQLAlchemy: SuricataEvent, SuricataCVE
-│   │   ├── schemas.py          # Pydantic: SuricataEventIn, SuricataEventOut
-│   │   ├── constants.py
-│   │   └── exceptions.py
-│   ├── epss
-│   │   ├── client.py           # HTTP client do API FIRST / CSV offline
-│   │   ├── service.py          # pobranie score, zapis/aktualizacja w DB
-│   │   ├── models.py           # SQLAlchemy: CVEScore (cve, epss, percentile, date)
-│   │   ├── schemas.py          # Pydantic: CVEScoreOut
-│   │   ├── config.py
-│   │   └── exceptions.py
-│   ├── alerts
-│   │   ├── router.py           # GET /alerts, WebSocket itp.
-│   │   ├── service.py          # łączenie Event + CVEScore → Alert, zapis do DB
-│   │   ├── models.py           # SQLAlchemy: Alert (event_id, cve, epss, status…)
-│   │   ├── schemas.py          # Pydantic: AlertOut
-│   │   ├── dependencies.py     # wspólne zależności (DB session, cache)
-│   │   ├── constants.py
-│   │   └── exceptions.py
-│   ├── database.py             # init SQLAlchemy engine, SessionLocal, Base
-│   ├── config.py               # globalne ENV, URL DB, klucze API…
-│   ├── exceptions.py           # globalne wyjątki i handler
-│   ├── pagination.py           # paginacja zapytań / odpowiedzi
-│   └── main.py                 # tworzy FastAPI app, rejestruje routery, eventy startup/shutdown
-├── tests
-│   ├── suricata
-│   ├── epss
-│   └── alerts
-├── .env
-├── .gitignore
-├── pyproject.toml
+docker run --hostname=a6a1dd1a8cab --mac-address=a6:be:85:01:cf:d2 --env=PG_MAJOR=17 --env=PG_VERSION=17.5-1.pgdg120+1 --env=POSTGRES_DB=suricata_alerts --env=LANG=en_US.utf8 --env=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/postgresql/17/bin --env=GOSU_VERSION=1.17 --env=PGDATA=/var/lib/postgresql/data --env=POSTGRES_USER=postgres --env=POSTGRES_PASSWORD=postgres --volume=/var/lib/postgresql/data --network=bridge -p 5432:5432 --restart=no --runtime=runc -d postgres:latest
 ```
