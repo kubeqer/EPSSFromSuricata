@@ -36,17 +36,17 @@ class AlertService:
     """Service for handling security alerts"""
 
     def __init__(
-        self,
-        db: Session,
-        suricata_service: Optional[SuricataService] = None,
-        epss_service: Optional[EPSSService] = None,
+            self,
+            db: Session,
+            suricata_service: Optional[SuricataService] = None,
+            epss_service: Optional[EPSSService] = None,
     ):
         self.db = db
         self.suricata_service = suricata_service or SuricataService(db)
         self.epss_service = epss_service or EPSSService(db)
 
     async def process_new_events(
-        self, background_tasks: BackgroundTasks
+            self, background_tasks: BackgroundTasks
     ) -> List[Alert]:
         """
         Process new Suricata events and create alerts
@@ -265,7 +265,7 @@ class AlertService:
         return alert
 
     def get_alerts(
-        self, filter_params: AlertFilter = None, pagination: PaginationParams = None
+            self, filter_params: AlertFilter = None, pagination: PaginationParams = None
     ) -> Tuple[List[Alert], int]:
         """
         Get alerts with filtering and pagination
@@ -276,14 +276,34 @@ class AlertService:
         # Apply filters if provided
         if filter_params:
             if filter_params.status:
-                query = query.filter(
-                    Alert.status.in_([s for s in filter_params.status])
-                )
+                # Convert status strings to AlertStatus enum values if needed
+                status_values = []
+                for status in filter_params.status:
+                    if isinstance(status, str):
+                        try:
+                            status_values.append(AlertStatus(status))
+                        except ValueError:
+                            logger.warning(f"Invalid status value: {status}")
+                    else:
+                        status_values.append(status)
+
+                if status_values:
+                    query = query.filter(Alert.status.in_(status_values))
 
             if filter_params.priority:
-                query = query.filter(
-                    Alert.priority.in_([p for p in filter_params.priority])
-                )
+                # Convert priority strings to AlertPriority enum values if needed
+                priority_values = []
+                for priority in filter_params.priority:
+                    if isinstance(priority, str):
+                        try:
+                            priority_values.append(AlertPriority(priority))
+                        except ValueError:
+                            logger.warning(f"Invalid priority value: {priority}")
+                    else:
+                        priority_values.append(priority)
+
+                if priority_values:
+                    query = query.filter(Alert.priority.in_(priority_values))
 
             if filter_params.cve_id:
                 query = query.filter(Alert.cve_id == filter_params.cve_id)
@@ -294,18 +314,22 @@ class AlertService:
             if filter_params.end_date:
                 query = query.filter(Alert.created_at <= filter_params.end_date)
 
-            # Filter for synthetic alerts
+            # Filter for synthetic alerts - FIX: Properly qualify the column reference
             if filter_params.is_synthetic is not None:
+                # We need to join with SuricataEvent to access raw_event column
+                # Since we're using joinedload above, we need an explicit join for filtering
+                query = query.join(SuricataEvent, Alert.event_id == SuricataEvent.id)
+
                 if filter_params.is_synthetic:
                     # Only synthetic alerts
-                    query = query.join(Alert.event).filter(
-                        text("raw_event::json->>'synthetic' = 'true'")
+                    query = query.filter(
+                        text("suricata_events.raw_event::json->>'synthetic' = 'true'")
                     )
                 else:
                     # Only non-synthetic alerts
-                    query = query.join(Alert.event).filter(
+                    query = query.filter(
                         text(
-                            "raw_event::json->>'synthetic' IS NULL OR raw_event::json->>'synthetic' != 'true'"
+                            "suricata_events.raw_event::json->>'synthetic' IS NULL OR suricata_events.raw_event::json->>'synthetic' != 'true'"
                         )
                     )
 
@@ -466,10 +490,10 @@ class AlertService:
             # Check if this is a synthetic alert
             is_synthetic = ""
             if (
-                alert.event
-                and hasattr(alert.event, "raw_event")
-                and alert.event.raw_event
-                and alert.event.raw_event.get("synthetic")
+                    alert.event
+                    and hasattr(alert.event, "raw_event")
+                    and alert.event.raw_event
+                    and alert.event.raw_event.get("synthetic")
             ):
                 is_synthetic = ' <span class="synthetic-alert">(Synthetic)</span>'
 
@@ -524,7 +548,7 @@ class AlertService:
             return AlertPriority.LOW
 
     def _determine_priority_for_alert(
-        self, epss_percentile: float, suricata_severity: int
+            self, epss_percentile: float, suricata_severity: int
     ) -> AlertPriority:
         """
         Determine alert priority based on EPSS score if available, otherwise use Suricata severity
