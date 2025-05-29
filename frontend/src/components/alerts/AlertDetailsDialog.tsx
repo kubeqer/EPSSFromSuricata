@@ -108,8 +108,8 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 EPSS Score
               </Typography>
               <Typography variant="body1">
-                {alert.epss_percentile > 0
-                  ? `${alert.epss_percentile.toFixed(2)}% (${alert.epss_score.toFixed(4)})`
+                {alert.epss_score > 0
+                  ? `${alert.epss_score.toFixed(4)} (${alert.epss_percentile.toFixed(2)}th percentile)`
                   : 'N/A'}
               </Typography>
             </Grid>

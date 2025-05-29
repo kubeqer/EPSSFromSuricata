@@ -24,6 +24,7 @@ import {
   Visibility as ViewIcon,
   Edit as EditIcon,
   Refresh as RefreshIcon,
+  Clear as ClearIcon,
 } from '@mui/icons-material';
 import { alertsApi } from '../../api/alerts';
 import { Alert, AlertStatus, AlertPriority, AlertFilter } from '../../types/alerts';
@@ -35,6 +36,8 @@ interface FilterState {
   priority: string;
   cve_id: string;
   is_synthetic: string;
+  start_date: string;
+  end_date: string;
 }
 
 const AlertsTable: React.FC = () => {
@@ -54,6 +57,8 @@ const AlertsTable: React.FC = () => {
     priority: '',
     cve_id: '',
     is_synthetic: '',
+    start_date: '',
+    end_date: '',
   });
 
   const fetchAlerts = useCallback(async () => {
@@ -71,6 +76,8 @@ const AlertsTable: React.FC = () => {
       if (filters.priority) params.priority = [filters.priority as AlertPriority];
       if (filters.cve_id) params.cve_id = filters.cve_id;
       if (filters.is_synthetic !== '') params.is_synthetic = filters.is_synthetic === 'true';
+      if (filters.start_date) params.start_date = filters.start_date;
+      if (filters.end_date) params.end_date = filters.end_date;
 
       const data = await alertsApi.getAlerts(params);
       setAlerts(data.items);
@@ -101,6 +108,18 @@ const AlertsTable: React.FC = () => {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent
   ): void => {
     setFilters({ ...filters, [field]: event.target.value });
+    setPage(0);
+  };
+
+  const handleClearFilters = (): void => {
+    setFilters({
+      status: '',
+      priority: '',
+      cve_id: '',
+      is_synthetic: '',
+      start_date: '',
+      end_date: '',
+    });
     setPage(0);
   };
 
@@ -218,14 +237,51 @@ const AlertsTable: React.FC = () => {
               <MenuItem value="false">Suricata</MenuItem>
             </TextField>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 2}} sx={{ textAlign: 'right' }}>
+          <Grid size={{ xs: 12, sm: 6, md: 2}}>
+            <TextField
+              fullWidth
+              label="Start Date"
+              type="datetime-local"
+              value={filters.start_date}
+              onChange={handleFilterChange('start_date')}
+              size="small"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 2}}>
+            <TextField
+              fullWidth
+              label="End Date"
+              type="datetime-local"
+              value={filters.end_date}
+              onChange={handleFilterChange('end_date')}
+              size="small"
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 1}}>
             <Button
               variant="outlined"
               startIcon={<RefreshIcon />}
               onClick={fetchAlerts}
               disabled={loading}
+              fullWidth
             >
               Refresh
+            </Button>
+          </Grid>
+          <Grid size={{ xs: 12, sm: 6, md: 1}}>
+            <Button
+              variant="outlined"
+              startIcon={<ClearIcon />}
+              onClick={handleClearFilters}
+              fullWidth
+            >
+              Clear
             </Button>
           </Grid>
         </Grid>
@@ -241,7 +297,7 @@ const AlertsTable: React.FC = () => {
               <TableCell>Status</TableCell>
               <TableCell>Alert Signature</TableCell>
               <TableCell>CVE</TableCell>
-              <TableCell>EPSS</TableCell>
+              <TableCell>EPSS Score</TableCell>
               <TableCell>Source IP</TableCell>
               <TableCell>Destination IP</TableCell>
               <TableCell>Type</TableCell>
@@ -286,7 +342,7 @@ const AlertsTable: React.FC = () => {
                   )}
                 </TableCell>
                 <TableCell>
-                  {alert.epss_percentile > 0 ? `${alert.epss_percentile.toFixed(2)}%` : 'N/A'}
+                  {alert.epss_score > 0 ? alert.epss_score.toFixed(4) : 'N/A'}
                 </TableCell>
                 <TableCell>{alert.event?.src_ip || 'N/A'}</TableCell>
                 <TableCell>{alert.event?.dest_ip || 'N/A'}</TableCell>

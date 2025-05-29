@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, computed_field
 
 from src.alerts.models import AlertStatus, AlertPriority
 from src.suricata.schemas import SuricataEventOut
@@ -42,33 +42,34 @@ class AlertInDB(AlertBase):
 
 class AlertOut(AlertInDB):
     event: Optional[SuricataEventOut] = None
-    is_synthetic: bool = False
-    detection_type: str = "Suricata Alert"
 
-    @field_validator("is_synthetic", mode="after")
-    @classmethod
-    def set_is_synthetic(cls, v, info):
-        values = info.data
-        event = values.get("event")
-        if event and hasattr(event, "raw_event") and isinstance(event.raw_event, dict):
-            return event.raw_event.get("synthetic", False)
+    @computed_field
+    @property
+    def is_synthetic(self) -> bool:
+        """Determine if this is a synthetic alert"""
+        if not self.event:
+            return False
+
+        # Method 1: Check raw_event for synthetic flag
+        if hasattr(self.event, 'raw_event') and isinstance(self.event.raw_event, dict):
+            if self.event.raw_event.get("synthetic", False):
+                return True
+
+        # Method 2: Check alert signature for SYNTHETIC prefix (most reliable for your case)
+        if hasattr(self.event, 'alert_signature') and self.event.alert_signature:
+            if self.event.alert_signature.startswith("SYNTHETIC:"):
+                return True
+
         return False
 
-    @field_validator("detection_type", mode="after")
-    @classmethod
-    def set_detection_type(cls, v, info):
-        values = info.data
-        event = values.get("event")
-        cve_id = values.get("cve_id", "")
-
-        if event and hasattr(event, "raw_event") and isinstance(event.raw_event, dict):
-            if event.raw_event.get("synthetic", False):
-                return "Synthetic Security Alert"
-            elif cve_id == "N/A":
-                return "Security Alert (No CVE)"
-            else:
-                return "Suricata Alert"
-        return "Suricata Alert"
+    @computed_field
+    @property
+    def detection_type(self) -> str:
+        """Determine the detection type based on alert characteristics"""
+        if self.is_synthetic:
+            return "Synthetic Security Alert"
+        else:
+            return "Suricata Alert"
 
     class Config:
         from_attributes = True
@@ -80,7 +81,7 @@ class AlertFilter(BaseModel):
     cve_id: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    is_synthetic: Optional[bool] = None  # New filter for synthetic alerts
+    is_synthetic: Optional[bool] = None
 
 
 class AlertStats(BaseModel):

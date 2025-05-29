@@ -5,28 +5,6 @@ from fastapi import (
     status,
     BackgroundTasks,
     Query,
-)
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-from typing import Dict, List, Optional, Any
-from datetime import datetime, timedelta
-
-from src.database import get_db
-from src.alerts.models import Alert, AlertStatus, AlertPriority
-from src.alerts.schemas import AlertOut, AlertUpdate, AlertFilter, AlertStats
-from src.alerts.dependencies import get_alert_by_id, get_pagination
-from src.alerts.service import AlertService
-from src.pagination import PaginationParams, Page
-
-router = APIRouter(prefix="/alerts", tags=["alerts"])
-
-from fastapi import (
-    APIRouter,
-    Depends,
-    HTTPException,
-    status,
-    BackgroundTasks,
-    Query,
     Request,
 )
 from sqlalchemy.orm import Session
@@ -65,21 +43,13 @@ async def get_alerts(
     status_enums = None
     status_values = []
 
-    # Check for status[] format
+    # Check for status[] format and regular status format
     for key, value in query_params.items():
         if key.startswith('status[') or key == 'status':
             if isinstance(value, str):
                 status_values.append(value)
             elif isinstance(value, list):
                 status_values.extend(value)
-
-    # Also check if status appears multiple times in URL
-    if 'status' in query_params:
-        raw_status = query_params['status']
-        if isinstance(raw_status, str):
-            status_values.append(raw_status)
-        elif isinstance(raw_status, list):
-            status_values.extend(raw_status)
 
     # Convert to enum values
     if status_values:
@@ -95,21 +65,13 @@ async def get_alerts(
     priority_enums = None
     priority_values = []
 
-    # Check for priority[] format
+    # Check for priority[] format and regular priority format
     for key, value in query_params.items():
         if key.startswith('priority[') or key == 'priority':
             if isinstance(value, str):
                 priority_values.append(value)
             elif isinstance(value, list):
                 priority_values.extend(value)
-
-    # Also check if priority appears multiple times in URL
-    if 'priority' in query_params:
-        raw_priority = query_params['priority']
-        if isinstance(raw_priority, str):
-            priority_values.append(raw_priority)
-        elif isinstance(raw_priority, list):
-            priority_values.extend(raw_priority)
 
     # Convert to enum values
     if priority_values:
