@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: suricata-postgres
+    environment:
+      POSTGRES_DB: suricata_alerts
+      POSTGRES_USER: suricata_user
+      POSTGRES_PASSWORD: suricata_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U suricata_user -d suricata_alerts"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: suricata-backend
+    environment:
+      DATABASE_URL: postgresql://suricata_user:suricata_password@postgres:5432/suricata_alerts
+      SURICATA_EVE_PATH: /var/log/suricata/eve.json
+      SURICATA_POLL_INTERVAL: 5
+      EPSS_API_URL: https://api.first.org/data/v1/epss
+      EPSS_USE_OFFLINE: "false"
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_TLS: "true"
+      SMTP_USER: alerts@example.com
+      SMTP_PASSWORD: your-smtp-password
+      EMAILS_FROM_EMAIL: alerts@example.com
+      EMAILS_TO_EMAIL: security@example.com
+      LOG_LEVEL: INFO
+    volumes:
+      - ./suricata_logs:/var/log/suricata:ro
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: suricata-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: suricata-network
