@@ -57,7 +57,7 @@ class AlertService:
 
         # If no new events, return empty list
         if not new_events:
-            logger.info("No new events to process")
+            logger.debug("No new events to process")
             return []
 
         logger.info(f"Processing {len(new_events)} new events")
@@ -156,7 +156,7 @@ class AlertService:
                     alert = self.create_alert(alert_data)
                     new_alerts.append(alert)
 
-                logger.info(
+                logger.debug(
                     f"Created alert {alert.id} for event {event.id} (priority: {alert.priority.value})"
                 )
 
@@ -216,7 +216,7 @@ class AlertService:
             self.db.commit()
             self.db.refresh(db_alert)
 
-            logger.info(
+            logger.debug(
                 f"Created alert: {db_alert.id} for event {db_alert.event_id} (priority: {db_alert.priority.value})"
             )
             return db_alert
@@ -363,7 +363,7 @@ class AlertService:
             raise EmailSendingError(f"Failed to send email notifications: {str(e)}")
 
     def _send_email(self, subject: str, body_html: str) -> None:
-        """Send an email through Gmail SMTP"""
+        """Send an email through SMTP"""
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = settings.EMAILS_FROM_EMAIL
@@ -373,19 +373,16 @@ class AlertService:
         msg.attach(MIMEText(body_html, "html"))
 
         try:
-            # Connect to Gmail SMTP server
+            # Connect to SMTP server
             server = smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT)
 
             # Secure the connection
-            server.starttls()
+            if settings.SMTP_TLS:
+                server.starttls()
 
-            # Login to Gmail
-            if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
-                raise EmailSendingError(
-                    "Gmail SMTP credentials are required (SMTP_USER and SMTP_PASSWORD)"
-                )
-
-            server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+            # Login if credentials provided
+            if settings.SMTP_USER and settings.SMTP_PASSWORD:
+                server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
 
             # Send email
             server.sendmail(
@@ -395,18 +392,14 @@ class AlertService:
             # Quit server
             server.quit()
 
-            logger.info(
-                f"Successfully sent email via Gmail to {settings.EMAILS_TO_EMAIL}"
-            )
+            logger.info(f"Successfully sent email to {settings.EMAILS_TO_EMAIL}")
 
         except smtplib.SMTPAuthenticationError as e:
-            logger.error(
-                f"Gmail authentication failed. Please check your app password: {str(e)}"
-            )
-            raise EmailSendingError(f"Gmail authentication failed: {str(e)}")
+            logger.error(f"SMTP authentication failed: {str(e)}")
+            raise EmailSendingError(f"SMTP authentication failed: {str(e)}")
         except smtplib.SMTPException as e:
             logger.error(f"SMTP error sending email: {str(e)}")
-            raise EmailSendingError(f"Failed to send email via Gmail: {str(e)}")
+            raise EmailSendingError(f"Failed to send email via SMTP: {str(e)}")
         except Exception as e:
             logger.error(f"Unexpected error sending email: {str(e)}")
             raise EmailSendingError(f"Failed to send email: {str(e)}")

@@ -1,5 +1,5 @@
 import axios from './axios';
-import { Alert, AlertFilter, AlertStats, AlertUpdate, Page, WebSocketMessage } from '../types/alerts';
+import { Alert, AlertFilter, AlertStats, AlertUpdate, Page } from '../types/alerts';
 
 interface AlertsApiParams extends Partial<AlertFilter> {
   page?: number;
@@ -36,39 +36,4 @@ export const alertsApi = {
     const response = await axios.post<Alert[]>('/alerts/process');
     return response.data;
   },
-};
-
-// WebSocket connection for real-time updates
-export const createWebSocketConnection = (
-  onMessage: (data: WebSocketMessage) => void,
-  onError?: (error: Event) => void
-): WebSocket => {
-  const wsUrl = process.env.REACT_APP_WS_URL || 'ws://localhost:8000/api/v1/alerts/ws';
-  const ws = new WebSocket(wsUrl);
-
-  ws.onopen = () => {
-    console.log('WebSocket connected');
-  };
-
-  ws.onmessage = (event: MessageEvent) => {
-    try {
-      const data: WebSocketMessage = JSON.parse(event.data);
-      onMessage(data);
-    } catch (error) {
-      console.error('Error parsing WebSocket message:', error);
-    }
-  };
-
-  ws.onerror = (error: Event) => {
-    console.error('WebSocket error:', error);
-    if (onError) onError(error);
-  };
-
-  ws.onclose = () => {
-    console.log('WebSocket disconnected');
-    // Attempt to reconnect after 5 seconds
-    setTimeout(() => createWebSocketConnection(onMessage, onError), 5000);
-  };
-
-  return ws;
 };

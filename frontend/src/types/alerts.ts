@@ -82,12 +82,3 @@ export interface Page<T> {
   limit: number;
   pages: number;
 }
-
-export interface WebSocketMessage {
-  topic: 'new_alert' | 'alert_update';
-  timestamp: string;
-  data: {
-    alert_id: number;
-    data: Alert;
-  };
-}

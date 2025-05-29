@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Container,
   Typography,
@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
     severity: 'info'
   });
 
-  const handleProcessAlerts = async (): Promise<void> => {
+  const handleProcessAlerts = useCallback(async (): Promise<void> => {
     setProcessing(true);
     try {
       const newAlerts = await alertsApi.processNewAlerts();
@@ -38,19 +38,20 @@ const Dashboard: React.FC = () => {
         severity: 'success',
       });
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Error processing alerts';
       setSnackbar({
         open: true,
-        message: 'Error processing alerts',
+        message: errorMessage,
         severity: 'error',
       });
     } finally {
       setProcessing(false);
     }
-  };
+  }, []);
 
-  const handleSnackbarClose = (): void => {
-    setSnackbar({ ...snackbar, open: false });
-  };
+  const handleSnackbarClose = useCallback((): void => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  }, []);
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -75,7 +76,10 @@ const Dashboard: React.FC = () => {
       <Box mb={3}>
         <Paper sx={{ p: 2 }}>
           <Typography variant="h6" gutterBottom>
-            Real-time Alerts
+            Recent Alerts
+          </Typography>
+          <Typography variant="body2" color="text.secondary" gutterBottom>
+            Auto-refreshes every 5 seconds
           </Typography>
           <RealtimeAlerts />
         </Paper>
