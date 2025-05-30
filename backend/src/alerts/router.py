@@ -24,15 +24,15 @@ router = APIRouter(prefix="/alerts", tags=["alerts"])
 
 @router.get("/", response_model=Page[AlertOut])
 async def get_alerts(
-        request: Request,
-        cve_id: Optional[str] = Query(None, description="Filter by CVE ID"),
-        start_date: Optional[datetime] = Query(None, description="Filter by start date"),
-        end_date: Optional[datetime] = Query(None, description="Filter by end date"),
-        is_synthetic: Optional[bool] = Query(
-            None, description="Filter for synthetic alerts"
-        ),
-        pagination: PaginationParams = Depends(get_pagination),
-        db: Session = Depends(get_db),
+    request: Request,
+    cve_id: Optional[str] = Query(None, description="Filter by CVE ID"),
+    start_date: Optional[datetime] = Query(None, description="Filter by start date"),
+    end_date: Optional[datetime] = Query(None, description="Filter by end date"),
+    is_synthetic: Optional[bool] = Query(
+        None, description="Filter for synthetic alerts"
+    ),
+    pagination: PaginationParams = Depends(get_pagination),
+    db: Session = Depends(get_db),
 ):
     """Get alerts with filtering and pagination"""
 
@@ -45,7 +45,7 @@ async def get_alerts(
 
     # Check for status[] format and regular status format
     for key, value in query_params.items():
-        if key.startswith('status[') or key == 'status':
+        if key.startswith("status[") or key == "status":
             if isinstance(value, str):
                 status_values.append(value)
             elif isinstance(value, list):
@@ -67,7 +67,7 @@ async def get_alerts(
 
     # Check for priority[] format and regular priority format
     for key, value in query_params.items():
-        if key.startswith('priority[') or key == 'priority':
+        if key.startswith("priority[") or key == "priority":
             if isinstance(value, str):
                 priority_values.append(value)
             elif isinstance(value, list):
@@ -106,7 +106,7 @@ async def get_alert(alert: Alert = Depends(get_alert_by_id)):
 
 @router.patch("/{alert_id}", response_model=AlertOut)
 async def update_alert(
-        update_data: AlertUpdate, alert_id: int, db: Session = Depends(get_db)
+    update_data: AlertUpdate, alert_id: int, db: Session = Depends(get_db)
 ):
     """Update an alert's status, priority or notes"""
     service = AlertService(db)
@@ -155,7 +155,7 @@ async def get_alert_stats(db: Session = Depends(get_db)):
 
 @router.post("/process", response_model=List[AlertOut])
 async def process_new_alerts(
-        background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+    background_tasks: BackgroundTasks, db: Session = Depends(get_db)
 ):
     """Manually trigger processing of new Suricata events"""
     service = AlertService(db)

@@ -36,17 +36,17 @@ class AlertService:
     """Service for handling security alerts"""
 
     def __init__(
-            self,
-            db: Session,
-            suricata_service: Optional[SuricataService] = None,
-            epss_service: Optional[EPSSService] = None,
+        self,
+        db: Session,
+        suricata_service: Optional[SuricataService] = None,
+        epss_service: Optional[EPSSService] = None,
     ):
         self.db = db
         self.suricata_service = suricata_service or SuricataService(db)
         self.epss_service = epss_service or EPSSService(db)
 
     async def process_new_events(
-            self, background_tasks: BackgroundTasks
+        self, background_tasks: BackgroundTasks
     ) -> List[Alert]:
         """
         Process new Suricata events and create alerts
@@ -265,7 +265,7 @@ class AlertService:
         return alert
 
     def get_alerts(
-            self, filter_params: AlertFilter = None, pagination: PaginationParams = None
+        self, filter_params: AlertFilter = None, pagination: PaginationParams = None
     ) -> Tuple[List[Alert], int]:
         """
         Get alerts with filtering and pagination
@@ -490,10 +490,10 @@ class AlertService:
             # Check if this is a synthetic alert
             is_synthetic = ""
             if (
-                    alert.event
-                    and hasattr(alert.event, "raw_event")
-                    and alert.event.raw_event
-                    and alert.event.raw_event.get("synthetic")
+                alert.event
+                and hasattr(alert.event, "raw_event")
+                and alert.event.raw_event
+                and alert.event.raw_event.get("synthetic")
             ):
                 is_synthetic = ' <span class="synthetic-alert">(Synthetic)</span>'
 
@@ -548,7 +548,7 @@ class AlertService:
             return AlertPriority.LOW
 
     def _determine_priority_for_alert(
-            self, epss_percentile: float, suricata_severity: int
+        self, epss_percentile: float, suricata_severity: int
     ) -> AlertPriority:
         """
         Determine alert priority based on EPSS score if available, otherwise use Suricata severity

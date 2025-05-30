@@ -51,12 +51,12 @@ class AlertOut(AlertInDB):
             return False
 
         # Method 1: Check raw_event for synthetic flag
-        if hasattr(self.event, 'raw_event') and isinstance(self.event.raw_event, dict):
+        if hasattr(self.event, "raw_event") and isinstance(self.event.raw_event, dict):
             if self.event.raw_event.get("synthetic", False):
                 return True
 
         # Method 2: Check alert signature for SYNTHETIC prefix (most reliable for your case)
-        if hasattr(self.event, 'alert_signature') and self.event.alert_signature:
+        if hasattr(self.event, "alert_signature") and self.event.alert_signature:
             if self.event.alert_signature.startswith("SYNTHETIC:"):
                 return True
 
