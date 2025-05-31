@@ -2,7 +2,7 @@ import json
 import re
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Set, Generator, Any
 
 from src.config import settings
@@ -240,7 +240,7 @@ class SuricataParser:
 
     def parse_event(self, event: Dict[str, Any]) -> Dict[str, Any]:
         """Parse a Suricata event into a standardized format"""
-        timestamp = event.get("timestamp", datetime.utcnow().isoformat())
+        timestamp = event.get("timestamp", datetime.now(timezone.utc).isoformat())
         if isinstance(timestamp, str):
             try:
                 timestamp = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
