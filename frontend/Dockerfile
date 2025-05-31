@@ -1,13 +1,28 @@
-FROM node:20-alpine AS builder
+FROM node:23-alpine AS builder
+
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --only=production
+
+COPY package*.json ./
+RUN npm install
+
 COPY . .
+
+ARG REACT_APP_API_URL
+
+
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
+
 RUN npm run build
 
-FROM nginx:alpine AS runner
-RUN rm -rf /usr/share/nginx/html/*
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=builder /app/build /usr/share/nginx/html
-EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+FROM node:23-alpine AS runner
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+RUN npm install -g serve
+
+CMD ["npx", "serve", "-s", "dist"]

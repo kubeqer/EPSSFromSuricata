@@ -16,10 +16,37 @@ services:
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - suricata-network
+
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: suricata-ids
+    privileged: true
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_NICE
+    environment:
+      - SURICATA_OPTIONS=-i eth0
+    volumes:
+      - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
+      - suricata_logs:/var/log/suricata
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pgrep suricata || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: http://backend:8000/api/v1
     container_name: suricata-backend
     environment:
       DATABASE_URL: postgresql://suricata_user:suricata_password@postgres:5432/suricata_alerts
@@ -36,25 +63,31 @@ services:
       EMAILS_TO_EMAIL: security@example.com
       LOG_LEVEL: INFO
     volumes:
-      - ./suricata_logs:/var/log/suricata:ro
+      - suricata_logs:/var/log/suricata:ro
     ports:
       - "8000:8000"
     depends_on:
       postgres:
+        condition: service_healthy
+      suricata:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 30s
     restart: unless-stopped
+    networks:
+      - suricata-network
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        REACT_APP_API_URL: http://backend:8000/api/v1
     container_name: suricata-frontend
-    environment:
-      REACT_APP_API_URL: http://localhost:8000/api/v1
     ports:
       - "3000:80"
     depends_on:
@@ -65,11 +98,15 @@ services:
       timeout: 10s
       retries: 3
     restart: unless-stopped
+    networks:
+      - suricata-network
 
 volumes:
   postgres_data:
     driver: local
+  suricata_logs:
+    driver: local
 
 networks:
-  default:
-    name: suricata-network
+  suricata-network:
+    driver: bridge
