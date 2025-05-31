@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Set, Tuple
 from sqlalchemy.orm import Session
 
@@ -45,7 +45,7 @@ class EPSSService:
                     cve_id=cve_id,
                     epss_score=score,
                     epss_percentile=percentile,
-                    last_updated=datetime.utcnow(),
+                    last_updated=datetime.now(timezone.utc),
                 )
                 self.db.add(db_score)
 

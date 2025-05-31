@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from src.alerts.schemas import (
     AlertBase,
     AlertCreate,
@@ -50,7 +50,7 @@ def test_alert_filter_schema():
     data = {
         "status": [AlertStatus.NEW, AlertStatus.ACKNOWLEDGED],
         "priority": [AlertPriority.CRITICAL],
-        "start_date": datetime.utcnow(),
+        "start_date": datetime.now(timezone.utc),
         "is_synthetic": False
     }
     schema = AlertFilter(**data)

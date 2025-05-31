@@ -1,7 +1,7 @@
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi.testclient import TestClient
 
 from src.database import Base, get_db
@@ -33,13 +33,21 @@ def db_session(test_db):
     transaction.rollback()
     connection.close()
 
+
 @pytest.fixture
 def client(db_session):
+    from fastapi.testclient import TestClient
+    from src.main import app
+    from src.alerts.router import router  # Add this import
+
+    # Include the router if not already done
+    app.include_router(router)
+
     def override_get_db():
         try:
             yield db_session
         finally:
-            pass
+            db_session.close()
 
     app.dependency_overrides[get_db] = override_get_db
     yield TestClient(app)
@@ -48,7 +56,7 @@ def client(db_session):
 @pytest.fixture
 def test_event(db_session):
     event = SuricataEvent(
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         src_ip="192.168.1.1",
         dest_ip="10.0.0.1",
         alert_signature="ET EXPLOIT Test Exploit",
@@ -65,7 +73,7 @@ def test_cve_score(db_session):
         cve="CVE-2023-1234",
         epss=0.5,
         percentile=99.5,
-        date=datetime.utcnow().date()
+        date=ddatetime.now(timezone.utc).date()
     )
     db_session.add(score)
     db_session.commit()
@@ -80,7 +88,7 @@ def test_alert(db_session, test_event):
         epss_percentile=99.5,
         priority=AlertPriority.CRITICAL,
         status=AlertStatus.NEW,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
     db_session.add(alert)
     db_session.commit()

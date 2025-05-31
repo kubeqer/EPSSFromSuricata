@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 from src.alerts.models import Alert, AlertStatus, AlertPriority
 
 
@@ -10,7 +10,7 @@ def test_alert_model():
         epss_percentile=99.5,
         priority=AlertPriority.CRITICAL,
         status=AlertStatus.NEW,
-        created_at=datetime.utcnow()
+        created_at=datetime.now(timezone.utc)
     )
 
     assert alert.event_id == 1
