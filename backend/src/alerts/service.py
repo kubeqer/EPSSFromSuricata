@@ -170,7 +170,7 @@ class AlertService:
         )
         return new_alerts
 
-    def _determine_priority_from_severity(severity: int) -> AlertPriority:
+    def _determine_priority_from_severity(self, severity: int) -> AlertPriority:
         """Determine alert priority based on Suricata alert severity"""
         if severity == 1:
             return AlertPriority.HIGH
