@@ -6,8 +6,6 @@ services:
       POSTGRES_DB: suricata_alerts
       POSTGRES_USER: suricata_user
       POSTGRES_PASSWORD: suricata_password
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -23,17 +21,17 @@ services:
     image: jasonish/suricata:latest
     container_name: suricata-ids
     privileged: true
-    network_mode: host
     cap_add:
       - NET_ADMIN
       - NET_RAW
       - SYS_NICE
     environment:
-      - SURICATA_OPTIONS=-i eth0
+      - SURICATA_OPTIONS=-i wlp1s0
     volumes:
-      - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
+      - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml
       - suricata_logs:/var/log/suricata
     restart: unless-stopped
+    network_mode: host
 
   backend:
     build:
@@ -80,18 +78,11 @@ services:
       - "80:3000"
     depends_on:
       - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:80"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     restart: unless-stopped
     networks:
       - suricata-network
 
 volumes:
-  postgres_data:
-    driver: local
   suricata_logs:
     driver: local
 
