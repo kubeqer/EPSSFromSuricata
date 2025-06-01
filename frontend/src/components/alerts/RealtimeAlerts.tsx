@@ -23,10 +23,8 @@ const RealtimeAlerts: React.FC = () => {
       setError(null);
       const response = await alertsApi.getAlerts({
         page: 1,
-        limit: 5, // Get only the 5 most recent alerts
+        limit: 5,
       });
-
-      // Only update if we have new alerts or different alerts
       const newAlerts = response.items;
       if (JSON.stringify(newAlerts) !== JSON.stringify(recentAlerts)) {
         setRecentAlerts(newAlerts);
@@ -43,13 +41,8 @@ const RealtimeAlerts: React.FC = () => {
   }, [recentAlerts]);
 
   useEffect(() => {
-    // Initial fetch
     fetchRecentAlerts();
-
-    // Set up polling every 5 seconds
     const interval = setInterval(fetchRecentAlerts, 5000);
-
-    // Cleanup interval on unmount
     return () => clearInterval(interval);
   }, [fetchRecentAlerts]);
 

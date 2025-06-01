@@ -85,7 +85,6 @@ const AlertStats: React.FC = () => {
 
   return (
     <Box>
-      {/* Last update indicator */}
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', mb: 2 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {refreshing && <CircularProgress size={16} />}

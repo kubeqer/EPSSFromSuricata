@@ -158,8 +158,6 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
               <Typography variant="body1">{alert.detection_type}</Typography>
             </Grid>
           </Grid>
-
-          {/* HTTP Details Section */}
           {alert.http_details && (
             <>
               <Divider sx={{ my: 2 }} />

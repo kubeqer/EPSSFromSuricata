@@ -71,7 +71,6 @@ const AlertsTable: React.FC = () => {
         limit: rowsPerPage,
       };
 
-      // Add filters to params
       if (filters.status) params.status = [filters.status as AlertStatus];
       if (filters.priority) params.priority = [filters.priority as AlertPriority];
       if (filters.cve_id) params.cve_id = filters.cve_id;
@@ -177,7 +176,6 @@ const AlertsTable: React.FC = () => {
 
   return (
     <Box>
-      {/* Filters */}
       <Paper sx={{ p: 2, mb: 2 }}>
         <Grid container spacing={2} alignItems="center">
           <Grid size={{ xs: 12, sm: 6, md: 2}}>
@@ -287,7 +285,6 @@ const AlertsTable: React.FC = () => {
         </Grid>
       </Paper>
 
-      {/* Table */}
       <TableContainer component={Paper}>
         <Table>
           <TableHead>
@@ -383,7 +380,6 @@ const AlertsTable: React.FC = () => {
         />
       </TableContainer>
 
-      {/* Dialogs */}
       <AlertDetailsDialog
         open={detailsOpen}
         onClose={() => setDetailsOpen(false)}
