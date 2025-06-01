@@ -21,8 +21,8 @@ ENV NODE_ENV=production
 
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/build ./build
 
 RUN npm install -g serve
 
-CMD ["npx", "serve", "-s", "dist"]
+CMD ["npx", "serve", "-s", "build"]
