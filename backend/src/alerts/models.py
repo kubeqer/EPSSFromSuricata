@@ -9,6 +9,7 @@ from sqlalchemy import (
     Enum,
     Text,
     Boolean,
+    JSON,
 )
 from sqlalchemy.orm import relationship
 import enum
@@ -47,6 +48,7 @@ class Alert(Base):
     priority = Column(Enum(AlertPriority), index=True)
     status = Column(Enum(AlertStatus), default=AlertStatus.NEW, index=True)
     notes = Column(Text, nullable=True)
+    http_metadata = Column(JSON, nullable=True)
     email_sent = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

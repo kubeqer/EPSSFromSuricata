@@ -7,7 +7,7 @@ from src.suricata.models import SuricataEvent, SuricataCVE, Base
 
 @pytest.fixture
 def db_session():
-    engine = create_engine('sqlite:///:memory:')
+    engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(engine)
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -26,7 +26,7 @@ def test_suricata_event_model(db_session):
         proto="tcp",
         alert_signature="Test Signature",
         alert_category="Test Category",
-        alert_severity=1
+        alert_severity=1,
     )
     db_session.add(event)
     db_session.commit()
@@ -46,7 +46,7 @@ def test_suricata_cve_relationship(db_session):
         proto="tcp",
         alert_signature="Test Signature",
         alert_category="Test Category",
-        alert_severity=1
+        alert_severity=1,
     )
     cve = SuricataCVE(cve_id="CVE-2023-1234")
     event.cves.append(cve)

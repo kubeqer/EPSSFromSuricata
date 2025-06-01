@@ -28,7 +28,18 @@ export interface SuricataEvent {
   raw_event?: Record<string, any>;
 }
 
+export interface HttpDetails {
+  url?: string;
+  method?: string;
+  status?: number;
+  user_agent?: string;
+  hostname?: string;
+  referrer?: string;
+  content_type?: string;
+}
+
 export interface Alert {
+  http_details: HttpDetails;
   id: number;
   event_id: number;
   cve_id: string;

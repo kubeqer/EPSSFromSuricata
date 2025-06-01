@@ -10,6 +10,12 @@ import {
   Chip,
   Divider,
   Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableRow,
 } from '@mui/material';
 import { Alert, AlertPriority, AlertStatus } from '../../types/alerts';
 
@@ -44,12 +50,12 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="lg" fullWidth>
       <DialogTitle>Alert Details - ID: {alert.id}</DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <Grid container spacing={2}>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Priority
               </Typography>
@@ -59,7 +65,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 size="small"
               />
             </Grid>
-            <Grid size={{ xs:6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Status
               </Typography>
@@ -77,7 +83,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
             Alert Information
           </Typography>
           <Grid container spacing={2}>
-            <Grid size={{ xs:12 }}>
+            <Grid size={{xs: 12}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Signature
               </Typography>
@@ -85,7 +91,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.alert_signature || 'N/A'}
               </Typography>
             </Grid>
-            <Grid size={{xs:6}}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 CVE ID
               </Typography>
@@ -103,13 +109,13 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 )}
               </Typography>
             </Grid>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 EPSS Score
               </Typography>
               <Typography variant="body1">
                 {alert.epss_score > 0
-                  ? `${alert.epss_score.toFixed(4)} (${alert.epss_percentile.toFixed(2)}th percentile)`
+                  ? `${alert.epss_score.toFixed(4)}`
                   : 'N/A'}
               </Typography>
             </Grid>
@@ -121,7 +127,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
             Network Information
           </Typography>
           <Grid container spacing={2}>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Source
               </Typography>
@@ -129,7 +135,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.src_ip || 'N/A'}:{alert.event?.src_port || 'N/A'}
               </Typography>
             </Grid>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Destination
               </Typography>
@@ -137,7 +143,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.dest_ip || 'N/A'}:{alert.event?.dest_port || 'N/A'}
               </Typography>
             </Grid>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Protocol
               </Typography>
@@ -145,7 +151,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                 {alert.event?.proto || 'N/A'}
               </Typography>
             </Grid>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Detection Type
               </Typography>
@@ -153,13 +159,103 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
             </Grid>
           </Grid>
 
+          {/* HTTP Details Section */}
+          {alert.http_details && (
+            <>
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" gutterBottom>
+                HTTP Details
+              </Typography>
+              <TableContainer component={Paper} variant="outlined">
+                <Table size="small">
+                  <TableBody>
+                    {alert.http_details.url && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          URL
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ fontFamily: 'monospace' }}>
+                            {alert.http_details.url}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {alert.http_details.method && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          Method
+                        </TableCell>
+                        <TableCell>{alert.http_details.method}</TableCell>
+                      </TableRow>
+                    )}
+                    {alert.http_details.status !== undefined && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          Status Code
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={alert.http_details.status}
+                            size="small"
+                            color={alert.http_details.status >= 400 ? 'error' : 'success'}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {alert.http_details.hostname && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          Hostname
+                        </TableCell>
+                        <TableCell>{alert.http_details.hostname}</TableCell>
+                      </TableRow>
+                    )}
+                    {alert.http_details.user_agent && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          User Agent
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                            {alert.http_details.user_agent}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {alert.http_details.referrer && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          Referrer
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+                            {alert.http_details.referrer}
+                          </Typography>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                    {alert.http_details.content_type && (
+                      <TableRow>
+                        <TableCell component="th" scope="row" sx={{ fontWeight: 'medium' }}>
+                          Content Type
+                        </TableCell>
+                        <TableCell>{alert.http_details.content_type}</TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </>
+          )}
+
           <Divider sx={{ my: 2 }} />
 
           <Typography variant="h6" gutterBottom>
             Timestamps
           </Typography>
           <Grid container spacing={2}>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Event Time
               </Typography>
@@ -169,7 +265,7 @@ const AlertDetailsDialog: React.FC<AlertDetailsDialogProps> = ({ open, onClose, 
                   : 'N/A'}
               </Typography>
             </Grid>
-            <Grid size={{ xs: 6 }}>
+            <Grid size={{xs: 6}}>
               <Typography variant="subtitle2" color="text.secondary">
                 Alert Created
               </Typography>

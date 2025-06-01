@@ -9,7 +9,7 @@ from fastapi import (
 )
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from typing import Dict, List, Optional, Any
+from typing import List, Optional
 from datetime import datetime, timedelta
 
 from src.database import get_db
@@ -35,23 +35,15 @@ async def get_alerts(
     db: Session = Depends(get_db),
 ):
     """Get alerts with filtering and pagination"""
-
-    # Parse query parameters manually to handle both formats: status=resolved and status[]=resolved
     query_params = dict(request.query_params)
-
-    # Handle status parameters
     status_enums = None
     status_values = []
-
-    # Check for status[] format and regular status format
     for key, value in query_params.items():
         if key.startswith("status[") or key == "status":
             if isinstance(value, str):
                 status_values.append(value)
             elif isinstance(value, list):
                 status_values.extend(value)
-
-    # Convert to enum values
     if status_values:
         status_enums = []
         for s in status_values:
@@ -60,20 +52,14 @@ async def get_alerts(
             except ValueError:
                 print(f"Invalid status value: {s}")
                 pass
-
-    # Handle priority parameters
     priority_enums = None
     priority_values = []
-
-    # Check for priority[] format and regular priority format
     for key, value in query_params.items():
         if key.startswith("priority[") or key == "priority":
             if isinstance(value, str):
                 priority_values.append(value)
             elif isinstance(value, list):
                 priority_values.extend(value)
-
-    # Convert to enum values
     if priority_values:
         priority_enums = []
         for p in priority_values:
@@ -82,7 +68,6 @@ async def get_alerts(
             except ValueError:
                 print(f"Invalid priority value: {p}")
                 pass
-
     filter_params = AlertFilter(
         status=status_enums,
         priority=priority_enums,
@@ -91,10 +76,8 @@ async def get_alerts(
         end_date=end_date,
         is_synthetic=is_synthetic,
     )
-
     service = AlertService(db)
     items, total = service.get_alerts(filter_params, pagination)
-
     return Page.create(items, total, pagination)
 
 

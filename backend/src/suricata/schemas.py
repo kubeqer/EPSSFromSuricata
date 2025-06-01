@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Dict, List, Optional, Any
-from pydantic import BaseModel, Field
+from typing import Dict, List, Any
+from pydantic import BaseModel
 
 
 class CVEBase(BaseModel):

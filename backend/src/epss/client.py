@@ -40,7 +40,6 @@ class EPSSClient:
         """
         if not cve_ids:
             return {}
-
         if self.use_offline:
             return self._get_scores_offline(cve_ids)
         else:
@@ -51,17 +50,14 @@ class EPSSClient:
     ) -> Dict[str, Tuple[float, float]]:
         """Get EPSS scores from the API"""
         result = {}
-
         try:
             cve_param = ",".join(cve_ids)
-
             async with httpx.AsyncClient() as client:
                 response = await client.get(
                     self.api_url,
                     params={"cve": cve_param},
                     timeout=EPSS_REQUEST_TIMEOUT,
                 )
-
                 if response.status_code != 200:
                     logger.error(
                         f"EPSS API error: {response.status_code} - {response.text}"
@@ -69,7 +65,6 @@ class EPSSClient:
                     raise EPSSAPIException(
                         f"EPSS API returned status {response.status_code}"
                     )
-
                 data = response.json()
                 for item in data.get("data", []):
                     cve_id = item.get("cve")
@@ -85,34 +80,28 @@ class EPSSClient:
                         logger.warning(
                             f"No EPSS data found for {cve_id}, using defaults"
                         )
-
         except (httpx.RequestError, httpx.TimeoutException) as e:
             logger.error(f"EPSS API connection error: {str(e)}")
             raise EPSSAPIException(f"Error connecting to EPSS API: {str(e)}")
         except Exception as e:
             logger.error(f"Unexpected error querying EPSS API: {str(e)}")
             raise EPSSAPIException(f"Error processing EPSS API response: {str(e)}")
-
         return result
 
     def _get_scores_offline(self, cve_ids: List[str]) -> Dict[str, Tuple[float, float]]:
         """Get EPSS scores from offline CSV file"""
         result = {}
-
         if not self.offline_path or not os.path.exists(self.offline_path):
             logger.error(f"EPSS offline file not found: {self.offline_path}")
             raise EPSSOfflineFileNotFound()
-
         try:
             cve_set = set(cve_ids)
-
             with open(self.offline_path, "r", newline="") as csvfile:
                 reader = csv.DictReader(csvfile)
                 for row in reader:
                     cve_id = row.get(EPSS_CSV_CVE_COLUMN)
                     if not cve_id or cve_id not in cve_set:
                         continue
-
                     try:
                         score = float(
                             row.get(EPSS_CSV_SCORE_COLUMN, DEFAULT_EPSS_SCORE)
@@ -131,7 +120,6 @@ class EPSSClient:
                     logger.warning(
                         f"No EPSS data found for {cve_id} in offline file, using defaults"
                     )
-
         except Exception as e:
             logger.error(f"Error reading EPSS offline file: {str(e)}")
             raise EPSSOfflineParsingError(f"Error parsing EPSS offline file: {str(e)}")

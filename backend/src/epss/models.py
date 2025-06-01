@@ -7,7 +7,6 @@ from src.database import Base
 
 class CVEScore(Base):
     __tablename__ = "cve_scores"
-
     id = Column(Integer, primary_key=True, index=True)
     cve_id = Column(String, index=True, unique=True)
     epss_score = Column(Float)

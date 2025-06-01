@@ -4,12 +4,14 @@ from src.suricata.schemas import (
     CVEBase,
     SuricataEventBase,
     SuricataEventCreate,
-    SuricataEventOut
+    SuricataEventOut,
 )
+
 
 def test_cve_base_schema():
     cve = CVEBase(cve_id="CVE-2023-1234")
     assert cve.cve_id == "CVE-2023-1234"
+
 
 def test_suricata_event_base_schema():
     event = SuricataEventBase(
@@ -22,10 +24,11 @@ def test_suricata_event_base_schema():
         proto="tcp",
         alert_signature="Test Signature",
         alert_category="Test Category",
-        alert_severity=1
+        alert_severity=1,
     )
     assert event.event_id == "test123"
     assert event.alert_severity == 1
+
 
 def test_suricata_event_create_schema():
     raw_event = {"test": "data"}
@@ -41,7 +44,7 @@ def test_suricata_event_create_schema():
         dest_port=0,
         proto="",
         raw_event=raw_event,
-        cves=["CVE-2023-1234"]
+        cves=["CVE-2023-1234"],
     )
     assert event.cves == ["CVE-2023-1234"]
     assert event.raw_event == raw_event

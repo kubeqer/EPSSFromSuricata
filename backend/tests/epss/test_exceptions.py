@@ -3,22 +3,26 @@ from src.epss.exceptions import (
     EPSSAPIException,
     EPSSOfflineFileNotFound,
     EPSSOfflineParsingError,
-    CVEScoreNotFoundException
+    CVEScoreNotFoundException,
 )
+
 
 def test_epss_exception():
     exc = EPSSException()
     assert exc.detail == "An error occurred in the EPSS module"
+
 
 def test_epss_api_exception():
     exc = EPSSAPIException()
     assert exc.detail == "Error communicating with EPSS API"
     assert isinstance(exc, EPSSException)
 
+
 def test_epss_offline_file_not_found():
     exc = EPSSOfflineFileNotFound()
     assert exc.detail == "EPSS offline data file not found"
     assert isinstance(exc, EPSSException)
+
 
 def test_epss_offline_parsing_error():
     exc = EPSSOfflineParsingError()

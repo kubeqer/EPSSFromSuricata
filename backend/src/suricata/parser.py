@@ -65,7 +65,6 @@ class SuricataParser:
         """
         if not os.path.exists(self.eve_path):
             raise EveFileNotFound(f"Eve file not found at {self.eve_path}")
-
         current_size = os.path.getsize(self.eve_path)
         if current_size < self._last_position:
             logger.info(
@@ -75,15 +74,12 @@ class SuricataParser:
         if current_size == self._last_position:
             logger.debug("No new data in eve.json")
             return
-
         logger.info(
             f"Processing eve.json from position {self._last_position} to {current_size}"
         )
-
         try:
             processed_events = 0
             suspicious_events = 0
-
             with open(self.eve_path, "r") as f:
                 f.seek(self._last_position)
                 for line_num, line in enumerate(f):
@@ -91,14 +87,13 @@ class SuricataParser:
                         event = json.loads(line.strip())
                         event_type = event.get("event_type")
                         processed_events += 1
-                        if event_type == EVENT_TYPE_ALERT:
-                            yield event
-                        elif event_type == "http":
+                        if event_type == "http":
                             suspicious_event = self._analyze_http_event(event)
                             if suspicious_event:
                                 suspicious_events += 1
                                 yield suspicious_event
-
+                        elif event_type == EVENT_TYPE_ALERT:
+                            yield event
                     except json.JSONDecodeError as e:
                         logger.warning(
                             f"Failed to parse JSON line {line_num}: {line.strip()[:100]}... Error: {e}"
@@ -106,7 +101,6 @@ class SuricataParser:
                     except Exception as e:
                         logger.error(f"Error processing line {line_num}: {e}")
                 self._last_position = f.tell()
-
             logger.info(
                 f"Processed {processed_events} events, found {suspicious_events} suspicious HTTP events"
             )
@@ -128,7 +122,6 @@ class SuricataParser:
             "http_method": http_data.get("http_method", ""),
             "hostname": http_data.get("hostname", ""),
         }
-
         detected_threats = []
         for pattern_name, pattern in self._suspicious_patterns.items():
             for field_name, field_value in fields_to_check.items():
@@ -252,6 +245,18 @@ class SuricataParser:
         event_id = event.get("event_id")
         if not event_id:
             event_id = f"synthetic-{timestamp.strftime('%Y%m%d%H%M%S')}-{event.get('flow_id', '')}"
+        http_block = event.get("http")
+        http_details = None
+        if isinstance(http_block, dict):
+            http_details = {
+                "url": http_block.get("url"),
+                "method": http_block.get("http_method"),
+                "status": http_block.get("status"),
+                "user_agent": http_block.get("http_user_agent"),
+                "hostname": http_block.get("hostname"),
+                "referrer": http_block.get("http_refer"),
+                "content_type": http_block.get("http_content_type"),
+            }
 
         return {
             "event_id": event_id,
@@ -267,4 +272,5 @@ class SuricataParser:
             "cves": list(self.extract_cves(event)),
             "raw_event": event,
             "is_synthetic": event.get("synthetic", False),
+            "http_details": http_details,
         }

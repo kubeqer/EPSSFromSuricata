@@ -48,13 +48,10 @@ class EPSSService:
                     last_updated=datetime.now(timezone.utc),
                 )
                 self.db.add(db_score)
-
             result[cve_id] = db_score
-
         self.db.commit()
         for cve_id, score in result.items():
             self.db.refresh(score)
-
         logger.info(f"Updated EPSS scores for {len(result)} CVEs")
         return result
 
@@ -83,7 +80,6 @@ class EPSSService:
             return {}
         existing_scores = self.get_scores_by_cve_ids(cve_ids)
         missing_cves = [cve_id for cve_id in cve_ids if cve_id not in existing_scores]
-
         if missing_cves:
             new_scores = await self.update_scores_for_cves(missing_cves)
             existing_scores.update(new_scores)

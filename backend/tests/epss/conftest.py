@@ -6,14 +6,16 @@ from sqlalchemy.orm import sessionmaker
 
 from src.epss.models import CVEScore, Base
 
+
 @pytest.fixture
 def test_cve_score():
     return CVEScore(
         cve_id="CVE-2023-1234",
         epss_score=0.5,
         epss_percentile=99.5,
-        last_updated=datetime.now(timezone.utc)
+        last_updated=datetime.now(timezone.utc),
     )
+
 
 @pytest.fixture(scope="module")
 def db_engine():
@@ -21,6 +23,7 @@ def db_engine():
     Base.metadata.create_all(engine)
     yield engine
     Base.metadata.drop_all(engine)
+
 
 @pytest.fixture
 def db_session(db_engine):
@@ -32,6 +35,7 @@ def db_session(db_engine):
     session.close()
     transaction.rollback()
     connection.close()
+
 
 @pytest.fixture
 def mock_epss_client():

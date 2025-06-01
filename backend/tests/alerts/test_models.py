@@ -10,7 +10,7 @@ def test_alert_model():
         epss_percentile=99.5,
         priority=AlertPriority.CRITICAL,
         status=AlertStatus.NEW,
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(timezone.utc),
     )
 
     assert alert.event_id == 1
@@ -23,9 +23,7 @@ def test_alert_model():
 
 
 def test_alert_repr():
-    alert = Alert(
-        id=1,
-        cve_id="CVE-2023-1234",
-        priority=AlertPriority.HIGH
+    alert = Alert(id=1, cve_id="CVE-2023-1234", priority=AlertPriority.HIGH)
+    assert (
+        repr(alert) == "<Alert(id=1, cve='CVE-2023-1234', priority=AlertPriority.HIGH)>"
     )
-    assert repr(alert) == "<Alert(id=1, cve='CVE-2023-1234', priority=AlertPriority.HIGH)>"

@@ -9,8 +9,9 @@ from src.epss.config import (
     EPSS_CSV_PERCENTILE_COLUMN,
     DEFAULT_EPSS_SCORE,
     DEFAULT_EPSS_PERCENTILE,
-    EPSS_CACHE_TTL
+    EPSS_CACHE_TTL,
 )
+
 
 def test_config_values():
     assert isinstance(EPSS_API_URL, str)

@@ -1,7 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field, computed_field
-
 from src.alerts.models import AlertStatus, AlertPriority
 from src.suricata.schemas import SuricataEventOut
 
@@ -17,6 +16,7 @@ class AlertCreate(AlertBase):
     event_id: int
     status: AlertStatus = AlertStatus.NEW
     notes: Optional[str] = None
+    http_metadata: Optional[Dict[str, Any]] = None
     email_sent: bool = False
 
 
@@ -32,6 +32,7 @@ class AlertInDB(AlertBase):
     event_id: int
     status: AlertStatus
     notes: Optional[str]
+    http_metadata: Optional[Dict[str, Any]]
     email_sent: bool
     created_at: datetime
     updated_at: datetime
@@ -49,17 +50,12 @@ class AlertOut(AlertInDB):
         """Determine if this is a synthetic alert"""
         if not self.event:
             return False
-
-        # Method 1: Check raw_event for synthetic flag
         if hasattr(self.event, "raw_event") and isinstance(self.event.raw_event, dict):
             if self.event.raw_event.get("synthetic", False):
                 return True
-
-        # Method 2: Check alert signature for SYNTHETIC prefix (most reliable for your case)
         if hasattr(self.event, "alert_signature") and self.event.alert_signature:
             if self.event.alert_signature.startswith("SYNTHETIC:"):
                 return True
-
         return False
 
     @computed_field
@@ -70,6 +66,30 @@ class AlertOut(AlertInDB):
             return "Synthetic Security Alert"
         else:
             return "Suricata Alert"
+
+    @computed_field
+    @property
+    def http_details(self) -> Optional[Dict[str, Any]]:
+        """Get HTTP details from metadata or raw event"""
+        if self.http_metadata:
+            return self.http_metadata
+        if (
+            self.event
+            and hasattr(self.event, "raw_event")
+            and isinstance(self.event.raw_event, dict)
+        ):
+            http_data = self.event.raw_event.get("http", {})
+            if http_data:
+                return {
+                    "url": http_data.get("url"),
+                    "method": http_data.get("http_method"),
+                    "status": http_data.get("status"),
+                    "user_agent": http_data.get("http_user_agent"),
+                    "hostname": http_data.get("hostname"),
+                    "referrer": http_data.get("http_refer"),
+                    "content_type": http_data.get("http_content_type"),
+                }
+        return None
 
     class Config:
         from_attributes = True
@@ -106,6 +126,3 @@ class AlertSummary(BaseModel):
     dest_ip: str
     timestamp: datetime
     is_synthetic: bool
-
-    class Config:
-        from_attributes = True

@@ -17,11 +17,13 @@ engine = create_engine(
 )
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 @pytest.fixture(scope="module")
 def test_db():
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
+
 
 @pytest.fixture
 def db_session(test_db):
@@ -53,6 +55,7 @@ def client(db_session):
     yield TestClient(app)
     app.dependency_overrides.clear()
 
+
 @pytest.fixture
 def test_event(db_session):
     event = SuricataEvent(
@@ -61,11 +64,12 @@ def test_event(db_session):
         dest_ip="10.0.0.1",
         alert_signature="ET EXPLOIT Test Exploit",
         alert_severity=1,
-        raw_event={"test": "data"}
+        raw_event={"test": "data"},
     )
     db_session.add(event)
     db_session.commit()
     return event
+
 
 @pytest.fixture
 def test_cve_score(db_session):
@@ -73,11 +77,12 @@ def test_cve_score(db_session):
         cve="CVE-2023-1234",
         epss=0.5,
         percentile=99.5,
-        date=ddatetime.now(timezone.utc).date()
+        date=ddatetime.now(timezone.utc).date(),
     )
     db_session.add(score)
     db_session.commit()
     return score
+
 
 @pytest.fixture
 def test_alert(db_session, test_event):
@@ -88,7 +93,7 @@ def test_alert(db_session, test_event):
         epss_percentile=99.5,
         priority=AlertPriority.CRITICAL,
         status=AlertStatus.NEW,
-        created_at=datetime.now(timezone.utc)
+        created_at=datetime.now(timezone.utc),
     )
     db_session.add(alert)
     db_session.commit()

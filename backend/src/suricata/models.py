@@ -43,14 +43,12 @@ class SuricataEvent(Base):
 
 class SuricataCVE(Base):
     __tablename__ = "suricata_cves"
-
     id = Column(Integer, primary_key=True, index=True)
     event_id = Column(
         Integer, ForeignKey("suricata_events.id", ondelete="CASCADE"), index=True
     )
     cve_id = Column(String, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
-
     event = relationship("SuricataEvent", back_populates="cves")
 
     def __repr__(self):

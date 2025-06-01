@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from src.alerts.dependencies import (
     get_alert_by_id,
     get_pagination,
-    validate_status_transition
+    validate_status_transition,
 )
 from src.alerts.models import AlertStatus
 from src.alerts.exceptions import AlertNotFoundException
@@ -37,7 +37,9 @@ def test_validate_status_transition():
 
     # Invalid transitions
     assert not validate_status_transition(AlertStatus.RESOLVED, AlertStatus.NEW)
-    assert not validate_status_transition(AlertStatus.FALSE_POSITIVE, AlertStatus.ACKNOWLEDGED)
+    assert not validate_status_transition(
+        AlertStatus.FALSE_POSITIVE, AlertStatus.ACKNOWLEDGED
+    )
 
     # Same status
     assert validate_status_transition(AlertStatus.NEW, AlertStatus.NEW)

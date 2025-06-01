@@ -6,6 +6,7 @@ from datetime import datetime
 from src.suricata.parser import SuricataParser
 from src.suricata.exceptions import EveFileNotFound, EveFileParsingError
 
+
 @pytest.fixture
 def sample_alert_event():
     return {
@@ -19,9 +20,10 @@ def sample_alert_event():
         "alert": {
             "signature": "ET EXPLOIT CVE-2023-1234 Test Exploit",
             "category": "Attempted Administrator Privilege Gain",
-            "severity": 1
-        }
+            "severity": 1,
+        },
     }
+
 
 @pytest.fixture
 def sample_http_event():
@@ -35,14 +37,16 @@ def sample_http_event():
             "url": "/wp-admin.php",
             "http_user_agent": "sqlmap/1.6",
             "http_method": "GET",
-            "status": 200
-        }
+            "status": 200,
+        },
     }
+
 
 def test_get_new_events_file_not_found():
     parser = SuricataParser("/nonexistent/path")
     with pytest.raises(EveFileNotFound):
         list(parser.get_new_events())
+
 
 @patch("os.path.exists", return_value=True)
 @patch("os.path.getsize", return_value=100)
@@ -51,10 +55,12 @@ def test_get_new_events_no_new_data(mock_exists, mock_getsize):
     parser._last_position = 100
     assert list(parser.get_new_events()) == []
 
+
 def test_extract_cves_from_alert(sample_alert_event):
     parser = SuricataParser()
     cves = parser.extract_cves(sample_alert_event)
     assert "CVE-2023-1234" in cves
+
 
 def test_parse_event(sample_alert_event):
     parser = SuricataParser()
