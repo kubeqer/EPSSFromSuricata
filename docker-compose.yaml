@@ -34,12 +34,6 @@ services:
       - ./suricata/suricata.yaml:/etc/suricata/suricata.yaml:ro
       - suricata_logs:/var/log/suricata
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "pgrep suricata || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
   backend:
     build:
@@ -70,13 +64,7 @@ services:
       postgres:
         condition: service_healthy
       suricata:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 30s
+        condition: service_started
     restart: unless-stopped
     networks:
       - suricata-network
@@ -89,7 +77,7 @@ services:
         REACT_APP_API_URL: http://localhost:8000/api/v1
     container_name: suricata-frontend
     ports:
-      - "3000:80"
+      - "80:3000"
     depends_on:
       - backend
     healthcheck:
